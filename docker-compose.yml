@@ -1,28 +1,57 @@
-services:
-  wordpress:
-    image: wordpress:latest
-    platform: linux/amd64
-    ports:
-      - "8081:80"
-    environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: atimslegobox
-      WORDPRESS_DB_PASSWORD: "(OOS_ATiMS_Sch00ls@0402)"
-      WORDPRESS_DB_NAME: atimslegobox
-    volumes:
-      - ./wp-data:/var/www/html
+version: '3.8'
 
-  db:
+services:
+  mysql-db:
     image: mysql:5.7
-    platform: linux/amd64
+    container_name: mysql-integration-db-1
     environment:
-      MYSQL_ROOT_PASSWORD: "(OOS_ATiMS_Sch00ls@0402)"
+      MYSQL_ROOT_PASSWORD: (OOS_ATiMS_Sch00ls@0402)
       MYSQL_DATABASE: atimslegobox
       MYSQL_USER: atimslegobox
-      MYSQL_PASSWORD: "(OOS_ATiMS_Sch00ls@0402)"
+      MYSQL_PASSWORD: (OOS_ATiMS_Sch00ls@0402)
+    networks:
+      - mysql-integration-network
     volumes:
       - db-data:/var/lib/mysql
 
+  wordpress:
+    image: wordpress:latest
+    container_name: mysql-integration-wordpress-1
+    depends_on:
+      - mysql-db
+    environment:
+      WORDPRESS_DB_HOST: mysql-db
+      WORDPRESS_DB_USER: atimslegobox
+      WORDPRESS_DB_PASSWORD: (OOS_ATiMS_Sch00ls@0402)
+      WORDPRESS_DB_NAME: atimslegobox
+    ports:
+      - "8081:80"
+    networks:
+      - mysql-integration-network
+    volumes:
+      - wp-data:/var/www/html
+
+  node-app:
+    build:
+      context: ./node-integration
+      dockerfile: Dockerfile
+    container_name: node-integration-app
+    depends_on:
+      - mysql-db
+    environment:
+      DB_HOST: mysql-db
+      DB_USER: atimslegobox
+      DB_PASSWORD: (OOS_ATiMS_Sch00ls@0402)
+      DB_NAME: atimslegobox
+    ports:
+      - "3000:3000"
+    networks:
+      - mysql-integration-network
+
+networks:
+  mysql-integration-network:
+    driver: bridge
+
 volumes:
   db-data:
-
+  wp-data:
