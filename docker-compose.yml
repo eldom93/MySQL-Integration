@@ -1,0 +1,28 @@
+services:
+  wordpress:
+    image: wordpress:latest
+    platform: linux/amd64
+    ports:
+      - "8081:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: atimslegobox
+      WORDPRESS_DB_PASSWORD: "(OOS_ATiMS_Sch00ls@0402)"
+      WORDPRESS_DB_NAME: atimslegobox
+    volumes:
+      - ./wp-data:/var/www/html
+
+  db:
+    image: mysql:5.7
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: "(OOS_ATiMS_Sch00ls@0402)"
+      MYSQL_DATABASE: atimslegobox
+      MYSQL_USER: atimslegobox
+      MYSQL_PASSWORD: "(OOS_ATiMS_Sch00ls@0402)"
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:
+
